@@ -1,11 +1,29 @@
-const {simpanContact,tulisPertanyaan} = require('./contact');
+const yargs = require("yargs");
+const {simpanContact} = require("./contact")
 
-const main = async () => {
-    const nama = await tulisPertanyaan('Tuliskan Nama Anda : ');
-    const email = await tulisPertanyaan('Tuliskan Email Anda : ');
-    const noHp = await tulisPertanyaan('Tuliskan No Hp Anda : ');
+yargs.command({
+    command: "add",
+    describe: "Add a new contact",
+    builder: {
+        name: {
+            describe: "Name of the contact",
+            demandOption: true,
+            type: "string"
+        },
+        phone: {
+            describe: "Phone number of the contact",
+            demandOption: true,
+            type: "string"
+        },
+        email: {
+            describe: "Email of the contact",
+            demandOption: false,
+            type: "string"
+        }
+    },
+    handler(argv) {
+        simpanContact(argv.name, argv.phone, argv.email);
+    }
+});
 
-    simpanContact(nama,email,noHp);
-}
-
-main();
+yargs.parse();

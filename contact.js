@@ -1,10 +1,6 @@
 const fs = require('fs');
-const readline = require('readline');
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
+const chalk = require('chalk');
+const validator = require('validator');
 
 // cek apakah folder tidak ada
 const dirPath = './data';
@@ -18,25 +14,35 @@ if(!fs.existsSync(dataPath)) {
     fs.writeFileSync(dataPath, '[]','utf-8');
 }
 
-const tulisPertanyaan = (pertanyaan) => {
-    return new Promise((resolve, reject) => {
-        rl.question(pertanyaan, (jawaban) => {
-            resolve(jawaban);
-        });
-    })
-}
-
-const simpanContact = (nama,email,noHp) => {
+const simpanContact = (nama,noHp,email) => {
     const contact = {
-        nama,email,noHp
+        nama,noHp,email
     }
 
     const file = fs.readFileSync('data/contacts.json','utf8');
     const contacts = JSON.parse(file);
+    const duplikat = contacts.find(contact => contact.nama === nama);
+    
+    if(duplikat) {
+        console.log(chalk.red.inverse.bold('Contact sudah ada'));
+        return false;
+    }
+
+    if(email){
+        if(!validator.isEmail(email)){
+            console.log(chalk.red.inverse.bold('Email Tidak Valid'));
+            return false;
+        }
+    }
+
+    if(!validator.isMobilePhone(noHp, 'id-ID')){
+        console.log(chalk.red.inverse.bold('Nomber Telepon Tidak Valid'));
+        return false;
+    }
+
     contacts.push(contact)
     fs.writeFileSync('data/contacts.json',JSON.stringify(contacts))
-    console.log("Terima kasih telah mengisi data");
-    rl.close();
+    console.log(chalk.green.inverse.bold('Terima kasih telah mengisi data'));
 }
 
-module.exports = {tulisPertanyaan,simpanContact}
+module.exports = {simpanContact}
